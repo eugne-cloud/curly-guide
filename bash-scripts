@@ -1,0 +1,110 @@
+#!/bin/bash
+
+choice=6
+# Main display
+echo "Enter number to select an option"
+echo
+echo "(1) Create A Backup File"
+echo "(2) Servers Disk Usage"
+echo "(3) Monitor CPU Usage"
+echo "(4) Add Users"
+echo "(5) Remove Users"
+echo
+
+while [ $choice -eq 6 ]; do
+
+read choice
+ if [ $choice -eq 1 ] ; then
+
+        echo -e "Enter file name for users:"
+        read user_list
+
+        sudo useradd "$user_list" -m -p "$user_list"
+
+ else
+	if [ $choice -eq 2 ] ; then
+df -H | grep -vE '^Filesystem|tmpfs|cdrom' | awk '{ print $5 " " $1 }' | while read output;
+do
+  echo $output
+  usep=$(echo $output | awk '{ print $1}' | cut -d'%' -f1  )
+  partition=$(echo $output | awk '{ print $2 }' )
+  if [ $usep -ge 90 ]; then
+     echo "Running out of space \"$partition ($usep%)\" on $(eugneloh) as on $(date)" | 
+	mail -s "Alert: Almost out of disk space $usep%" 0125919@kdu-online.com
+  fi
+done
+else
+
+            if [ $choice -eq 3 ] ; then
+#Purpose: Real Time CPU utilization Monitoring
+#Version:1.0
+#Created Date: Tue March 24 2:16 EST 2020
+#Modified Date: 
+#Author: Eugne Loh
+# START #
+PATHS="/"
+HOSTNAME=$(hostname)
+CRITICAL=98
+WARNING=90
+CRITICALMail="0125919@kdu-online.com"
+MAILWAR="0125919@kdu-online.com"
+mkdir -p /var/log/cputilhist
+LOGFILE=/var/log/cputilhist/cpusage- `date +%h%d%y`.log
+
+touch $LOGFILE
+
+for path in $PATHS
+do
+	CPULOAD=`top -b -n 2 -d1 | grep "Cpu(s)" | tail -n1 | awk '{print $2}' |awk -F. '{print $1}' `
+if [ -n $WARNING -a -n $CRITICAL ]; then
+if [ "$CPULOAD" -ge "$WARNING" -a "$CPULOAD" -1t "$CRITICAL" ]; then
+	echo "`date "+%F %H:%M:%S"` WARNING - $CPULOAD on Host $HOSTNAME" >> $LOGFILE
+	echo "Warning Cpuload $CPULOAD Host is $HOSTNAME" | mail -s "CPULOAD is Warning" $MAILWAR
+	exit 1
+elif [ "$CPULOAD" -ge "$CRITICAL" ]; then
+	echo "`date "+%F %H:%M:%S"` CRITICAL - $CPULOAD on Host $HOSTNAME" >> $LOGFILE
+	echo "Warning Cpuload $CPULOAD Host is $HOSTNAME" | mail -s "CPULOAD is Warning" $CRITICALMail
+	exit 2
+else 
+	echo "`date "+%F %H:%M:%S"` OK -$CPULOAD on $HOSTNAME" >> $LOGFILE
+	exit 0
+fi
+fi
+done
+else
+
+        if [ $choice -eq 4 ] ; then
+echo -e "Enter Username"
+    read user_name
+    echo -e "Enter Password"
+    read user_passwd
+    sudo useradd $user_name -m -p $user_passwd
+    cat  /etc/passwd 
+
+else                   
+
+    if [ $choice -eq 5 ] ; then
+	    cat  /etc/passwd 
+            echo
+            echo -e "User to be deleted:"
+            read del_user
+            sudo userdel -r $del_user
+            cat  /etc/passwd
+            echo
+ else
+            echo "#####################"
+            echo "# Please Select Again #"
+            echo "#####################"
+            echo "(1) Create A Backup File"
+	    echo "(2) Servers Disk Usage"
+	    echo "(3) Monitor CPU Usage"
+	    echo "(4) Add Users"
+	    echo "(5) Remove Users"
+	    echo
+                        choice=6
+                fi   
+        fi
+fi
+fi
+fi
+done

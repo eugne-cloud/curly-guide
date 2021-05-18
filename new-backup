@@ -1,0 +1,8 @@
+#!/bin/bash
+if [ $# -gt 0 ]
+then 
+	echo "Backup File is "
+	tar -cvzf something.tar $1
+else
+	echo "please enter file name"
+fi

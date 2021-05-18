@@ -1,0 +1,10 @@
+#!/bin/bash
+BACKUPTIME='DATE +%b-%d-%y'
+
+DESTINATION=/home/eugneloh/Documents/backup-$BACKUPTIME.tar.gz
+
+SOURCEFOLDER=/home/eugneloh/Documents/File1
+
+tar --create --gzip --file=$DOCUMENTS$BACKUP_FILE1
+tar -cpzf $DESTINATION $SOURCEFOLDER
+tar -cpzf $DESTINATION $SOURCE
